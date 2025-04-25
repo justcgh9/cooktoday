@@ -1,0 +1,17 @@
+[project]
+name = "cooktoday"
+version = "0.0.1"
+description = "\"What to cook today\" application"
+authors = [
+    {name = "justcgh9",email = "a.kabardiyadi@innopolis.university"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = "3.11"
+dependencies = [
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

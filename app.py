@@ -92,8 +92,7 @@ def render_browse(recipes: list):
     ]
     
     for recipe in filtered:
-        with st.expander(recipe['name']):
-            show_recipe(recipe, any(r['id'] == recipe['id'] for r in st.session_state.favorites))
+        show_recipe(recipe, any(r['id'] == recipe['id'] for r in st.session_state.favorites))
 
 def render_favorites():
     st.title("❤️ Favorites")
@@ -102,8 +101,8 @@ def render_favorites():
         return
     
     for recipe in st.session_state.favorites:
-        with st.expander(recipe['name']):
-            show_recipe(recipe, is_favorite=True)
+        # with st.expander(recipe['name']):
+        show_recipe(recipe, is_favorite=True)
 
 def render_custom_recipes():
     st.title("📝 Custom Recipes")
@@ -139,25 +138,48 @@ def show_recipe(recipe: dict, is_favorite=False):
     st.markdown(f"**Cuisine:** {recipe.get('area', 'N/A')}")
     
     with st.expander("Ingredients"):
-        for ingredient in recipe['ingredients']:
-            st.write(f"- {ingredient.capitalize()}")
+        for i, ingredient in enumerate(recipe['ingredients']):
+            measures = f": {recipe['measures'][i]}" if recipe['measures'][i] != "" else ""
+            st.write(f"- {ingredient.capitalize()}{measures}")
     
     with st.expander("Instructions"):
         st.write(recipe.get('instructions', 'No instructions provided'))
     
     # Favorite button
     if not is_favorite:
-        is_fav = any(r['id'] == recipe['id'] for r in st.session_state.favorites)
-        btn_label = "❤️ Add to Favorites" if not is_fav else "★ Already Favorited"
-        if st.button(btn_label, key=f"fav_{recipe['id']}", on_click=new_fav_button_on_click_handler(is_fav, recipe)):
-            pass
+    # Always calculate fresh favorite status
+        current_fav_status = any(r['id'] == recipe['id'] for r in st.session_state.get('favorites', []))
+        
+        # Create unique key using both recipe ID and favorite status
+        btn_key = f"fav_{recipe['id']}_{current_fav_status}"
+        
+        # Use a delta-based approach
+        if st.button(
+            "❤️ Add to Favorites" if not current_fav_status else "★ Remove from Favorites",
+            key=btn_key
+        ):
+            # Update session state first
+            print("got here")
+            if current_fav_status:
+                # Remove from favorites
+                st.session_state.favorites = [
+                    r for r in st.session_state.favorites
+                    if r['id'] != recipe['id']
+                ]
+            else:
+                # Add to favorites
+                print("and here")
+                st.session_state.favorites.append(recipe)
             
-def new_fav_button_on_click_handler(is_fav: bool, recipe: dict):
-    def fav_button_on_click_handler():
-        if is_fav:
-            st.session_state.favorites.append(recipe)
+            print("and after that here")
+            print(f"Favorite updated for {recipe['id']}")  # Check server console
+            st.toast("Favorites updated!", icon="✅")
+            
+            # Save to cookies
             save_favorites(st.session_state.favorites)
-    return fav_button_on_click_handler
+            
+            # Force rerun with experimental method
+            # st.experimental_rerun()
 
 def create_custom_recipe(name: str, ingredients: str, instructions: str, image_file) -> dict:
     ingredients_list = [i.strip().lower() for i in ingredients.split('\n') if i.strip()]

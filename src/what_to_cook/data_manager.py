@@ -32,11 +32,16 @@ def process_meal(raw_meal: dict) -> dict:
     details = client.get_meal_details(raw_meal['idMeal'])
     
     ingredients = []
+    measures = []
     for i in range(1, 21):
         ingredient = details.get(f'strIngredient{i}', '')
         measure = details.get(f'strMeasure{i}', '')
         if ingredient:
-            ingredients.append(f"{measure} {ingredient}")
+            ingredients.append(f"{ingredient}".lower().capitalize())
+            if measure:
+                measures.append(f"{measure}")
+            else:
+                measures.append("")
     
     return {
         'id': details['idMeal'],
@@ -44,6 +49,7 @@ def process_meal(raw_meal: dict) -> dict:
         'category': details.get('strCategory', 'Unknown'),
         'area': details.get('strArea', 'Unknown'),
         'ingredients': ingredients,
+        'measures': measures,
         'instructions': details.get('strInstructions', 'No instructions available'),
         'image_url': f"{details['strMealThumb']}/preview",
         'source': 'api'

@@ -7,6 +7,8 @@ import io
 from streamlit_local_storage import LocalStorage
 from src.what_to_cook.api_client import MealDBClient
 from src.what_to_cook.data_manager import (
+    save_all,
+    load_all,
     save_favorites,
     load_favorites,
     load_custom_recipes,
@@ -27,7 +29,7 @@ def main():
                 "initialized": True,
                 "favorites": load_favorites(localS),
                 "custom_recipes": load_custom_recipes(localS),
-                "all_meals": [],
+                "all_meals": load_all(localS),
                 "last_api_fetch": None,
             }
         )
@@ -39,11 +41,10 @@ def main():
         try:
             client = MealDBClient()
             raw_meals = client.fetch_all_meals()
-            print("Fetched meals", len(raw_meals))
             processed = [process_meal(m) for m in raw_meals]
-            print("Processed meals")
             st.session_state.all_meals = [m for m in processed if m is not None]
             st.session_state.last_api_fetch = datetime.now()
+            save_all(st.session_state.all_meals, localS)
         except Exception as e:
             st.error(f"Failed to load recipes: {str(e)}")
             st.session_state.all_meals = []

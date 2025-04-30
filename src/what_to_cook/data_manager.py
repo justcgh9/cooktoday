@@ -10,6 +10,14 @@ def _safe_json_loads(data: str) -> list:
         return []
 
 
+def load_all(localS) -> list:
+    return _safe_json_loads(localS.getItem("all_recipes"))
+
+
+def save_all(recipes: list, localS) -> None:
+    localS.setItem("all_recipes", json.dumps(recipes))
+
+
 def load_favorites(localS) -> list:
     return _safe_json_loads(localS.getItem("favorites"))
 

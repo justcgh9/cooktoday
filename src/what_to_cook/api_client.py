@@ -13,8 +13,6 @@ class MealDBClient:
     def fetch_all_meals(self) -> list:
         all_meals = []
         for letter in "abcdefghijklmnopqrstuvwxyz":
-            # if len(all_meals) > 30:
-            #     break
             meals = self.fetch_meals_by_first_letter(letter)
             if meals is not None:
                 all_meals.extend(meals)
@@ -22,7 +20,7 @@ class MealDBClient:
         seen_ids = set()
         unique_meals = []
         for meal in all_meals:
-            if meal["idMeal"] not in seen_ids:
+            if "idMeal" in meal and meal["idMeal"] not in seen_ids:
                 seen_ids.add(meal["idMeal"])
                 unique_meals.append(meal)
 

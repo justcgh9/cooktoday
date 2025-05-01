@@ -1,19 +1,17 @@
 [project]
 name = "cooktoday"
-version = "0.0.1"
-description = "\"What to cook today\" application"
+version = "0.1.0"
+description = ""
 authors = [
-    {name = "justcgh9",email = "a.kabardiyadi@innopolis.university"}
+    {name = "Macoyshev",email = "make.oynoshev@gmail.com"}
 ]
-license = {text = "MIT"}
 readme = "README.md"
+requires-python = ">=3.12"
 dependencies = [
-    "python  (>=3.11)",
-    "requests (>=2.32.3,<3.0.0)",
-    "streamlit (>=1.44.1,<2.0.0)",
+    "ruff (>=0.11.7,<0.12.0)",
+    "streamlit (>=1.45.0,<2.0.0)",
     "streamlit-js-eval (>=0.1.7,<0.2.0)",
-    "streamlit-local-storage (>=0.0.25,<0.0.26)",
-    "ruff (>=0.11.7,<0.12.0)"
+    "streamlit-local-storage (>=0.0.25,<0.0.26)"
 ]
 
 

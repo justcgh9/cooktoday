@@ -113,3 +113,51 @@ def test_create_custom_recipe():
         )
         assert recipe["name"] == "Test"
         assert recipe["ingredients"] == ["salt", "pepper"]
+
+
+# test API Client
+def test_api_client_fetch_meals():
+    with patch('requests.get') as mock_get:
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {"meals": [{"idMeal": "1"}]}
+        
+        client = app.MealDBClient()
+        result = client.fetch_meals_by_first_letter('a')
+        assert len(result) == 1
+        assert result[0]["idMeal"] == "1"
+
+def test_api_client_get_meal_details():
+    with patch('requests.get') as mock_get:
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {"meals": [{"idMeal": "123"}]}
+        
+        client = app.MealDBClient()
+        result = client.get_meal_details("123")
+        assert result["idMeal"] == "123"
+
+# test Data Manager
+def test_process_meal_invalid():
+    assert app.process_meal({}) is None
+
+
+# test App Error Cases
+def test_main_with_api_failure(mock_session_state):
+    with patch('app.st.session_state', mock_session_state), \
+         patch('app.MealDBClient') as mock_client:
+        
+        mock_client.return_value.fetch_all_meals.side_effect = Exception("API error")
+        app.main()
+        assert len(mock_session_state["all_meals"]) == 0
+
+
+def test_create_custom_recipe_with_image():
+    mock_file = MagicMock()
+    mock_file.read.return_value = b"fake image data"
+    
+    with patch('app.Image.open'), \
+         patch('app.io.BytesIO'), \
+         patch('app.base64.b64encode') as mock_b64:
+        
+        mock_b64.return_value.decode.return_value = "base64data"
+        recipe = app.create_custom_recipe("Test", "Salt", "Mix", mock_file)
+        assert recipe["image_url"] is not None

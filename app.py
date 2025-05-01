@@ -17,7 +17,10 @@ from src.what_to_cook.data_manager import (
     generate_custom_recipe_id,
 )
 
-localS = LocalStorage()
+def get_local_storage():
+    return LocalStorage()
+
+localS = get_local_storage()
 
 
 def main():

@@ -1,5 +1,6 @@
 import streamlit as st
 import random
+import os
 from PIL import Image
 from datetime import datetime
 import base64
@@ -17,8 +18,12 @@ from src.what_to_cook.data_manager import (
     generate_custom_recipe_id,
 )
 
+
 def get_local_storage():
+    if os.environ.get("TESTING"):
+        return
     return LocalStorage()
+
 
 localS = get_local_storage()
 

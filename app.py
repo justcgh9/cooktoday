@@ -5,6 +5,7 @@ from PIL import Image
 from datetime import datetime
 import base64
 import io
+from time import sleep
 from streamlit_local_storage import LocalStorage
 from src.what_to_cook.api_client import MealDBClient
 from src.what_to_cook.data_manager import (
@@ -215,21 +216,18 @@ def show_recipe(recipe: dict, is_favorite=False):
             if not current_fav_status
             else "★ Remove from Favorites",
             key=btn_key,
-        ):
-            print("got here")
+        ):            
             if current_fav_status:
                 st.session_state.favorites = [
                     r for r in st.session_state.favorites if r["id"] != recipe["id"]
                 ]
-            else:
-                print("and here")
+            else:                
                 st.session_state.favorites.append(recipe)
-
-            print("and after that here")
-            print(f"Favorite updated for {recipe['id']}")
+                        
             st.toast("Favorites updated!", icon="✅")
-
             save_favorites(st.session_state.favorites, localS)
+            sleep(0.3)
+            st.rerun()
 
 
 def create_custom_recipe(

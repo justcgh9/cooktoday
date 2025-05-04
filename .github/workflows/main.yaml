@@ -64,7 +64,7 @@ jobs:
       - name: Run tests with coverage
         id: pytest
         run: |
-          poetry run pytest tests --cov=app
+          poetry run pytest tests --cov=app --cov-report=xml:coverage.xml
      
   sonarqube:
     name: SonarQube Quality Gate
@@ -77,23 +77,17 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: DEBUG - Check if secrets exist
-        run: |
-          echo "Project Key: ${{ secrets.SONARCUBE_KEY }}"
-          echo "Organization: ${{ secrets.SONARCUBE_NAME }}"
-          echo "Token length: ${#${{ secrets.SONARCUBE_TOKEN }}}"
-
-
       - name: SonarQube Scanner
         uses: sonarsource/sonarqube-scan-action@master
         with:
           args: >
-              -Dsonar.projectKey=${{ secrets.SONARCUBE_KEY }} \
-              -Dsonar.organization=${{ secrets.SONARCUBE_NAME }} \
-              -Dsonar.host.url=https://sonarcloud.io \
-              -Dsonar.sources=app.py,src \
-              -Dsonar.python.coverage.reportPaths=coverage.xml
+              -Dsonar.organization=${{ secrets.SONARCUBE_KEY }}
+              -Dsonar.projectKey=${{ secrets.SONARCUBE_PROJECTKEY }}
+              -Dsonar.sources=app.py,src
+              -Dsonar.python.version=3.12
+              -Dsonar.tests=tests
         env:
           SONAR_TOKEN: ${{ secrets.SONARCUBE_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
 
   

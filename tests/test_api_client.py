@@ -18,9 +18,10 @@ def mocked_requests(mocker):
     return mocker.patch("src.what_to_cook.api_client.requests")
 
 
-def test_fetch_meals_by_first_letter(client, mocked_requests, mocked_client_url):
+def test_fetch_meals_by_first_letter(
+        client, mocked_requests, mocked_client_url):
     client.fetch_meals_by_first_letter("l")
-    mocked_requests.get.assert_called_with("testsearch.php?f=l")
+    mocked_requests.get.assert_called_with("testsearch.php?f=l", timeout=5)
 
 
 def test_fetch_empty_meals(client, mocked_requests, mocked_client_url):
@@ -29,7 +30,9 @@ def test_fetch_empty_meals(client, mocked_requests, mocked_client_url):
 
 
 def test_fetch_all_meals(client, mocked_requests, mocked_client_url):
-    mocked_requests.get.return_value.json.return_value = {"meals": [{"idMeal": "test"}]}
+    mocked_requests.get.return_value.json.return_value = {
+        "meals": [{"idMeal": "test"}]
+    }
     response = client.fetch_all_meals()
     assert response == [{"idMeal": "test"}]
 

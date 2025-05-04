@@ -1,5 +1,5 @@
 import streamlit as st
-import random
+import random  # nosec
 import os
 from PIL import Image
 from datetime import datetime
@@ -51,7 +51,9 @@ def main():
             client = MealDBClient()
             raw_meals = client.fetch_all_meals()
             processed = [process_meal(m) for m in raw_meals]
-            st.session_state.all_meals = [m for m in processed if m is not None]
+            st.session_state.all_meals = [
+                m for m in processed if m is not None
+            ]
             st.session_state.last_api_fetch = datetime.now()
             save_all(st.session_state.all_meals, localS)
         except Exception as e:
@@ -61,7 +63,8 @@ def main():
     all_recipes = st.session_state.all_meals + st.session_state.custom_recipes
 
     st.sidebar.title("Navigation")
-    page = st.sidebar.radio("Go to", ["Home", "Browse", "Favorites", "Custom Recipes"])
+    page = st.sidebar.radio("Go to", ["Home", "Browse",
+                                      "Favorites", "Custom Recipes"])
 
     if "current_recipe" not in st.session_state:
         st.session_state.current_recipe = None
@@ -108,7 +111,7 @@ def render_home(recipes: list):
     if st.button("🎲 Get Random Recipe"):
         if st.session_state.filtered_recipes:
             st.session_state.current_recipe = random.choice(
-                st.session_state.filtered_recipes
+                st.session_state.filtered_recipes  # nosec
             )
         else:
             st.error("No recipes match the filters")
@@ -124,7 +127,7 @@ def render_home(recipes: list):
 
         if st.button("🔀 Try Another Recipe"):
             st.session_state.current_recipe = random.choice(
-                st.session_state.filtered_recipes
+                st.session_state.filtered_recipes  # nosec
             )
             st.rerun()
 
@@ -143,7 +146,10 @@ def render_browse(recipes: list):
 
     for recipe in filtered:
         show_recipe(
-            recipe, any(r["id"] == recipe["id"] for r in st.session_state.favorites)
+            recipe,
+            any(
+                r["id"] == recipe["id"] for r in st.session_state.favorites
+            )
         )
 
 
@@ -164,7 +170,9 @@ def render_custom_recipes():
         name = st.text_input("Recipe Name")
         ingredients = st.text_area("Ingredients (one per line)")
         instructions = st.text_area("Instructions")
-        image_file = st.file_uploader("Upload Image", type=["png", "jpg", "jpeg"])
+        image_file = st.file_uploader(
+            "Upload Image", type=["png", "jpg", "jpeg"]
+        )
 
         if st.form_submit_button("Save Recipe"):
             new_recipe = create_custom_recipe(
@@ -176,7 +184,10 @@ def render_custom_recipes():
 
     for recipe in st.session_state.custom_recipes:
         show_recipe(
-            recipe, any(r["id"] == recipe["id"] for r in st.session_state.favorites)
+            recipe,
+            any(
+                r["id"] == recipe["id"] for r in st.session_state.favorites
+            )
         )
 
 
@@ -184,7 +195,10 @@ def show_recipe(recipe: dict, is_favorite=False):
     st.subheader(recipe["name"])
 
     if recipe.get("image_url"):
-        if recipe["source"] == "custom" and recipe["image_url"].startswith("data:"):
+        if (
+            recipe["source"] == "custom"
+            and recipe["image_url"].startswith("data:")
+        ):
             st.image(recipe["image_url"])
         else:
             st.image(recipe["image_url"])
@@ -206,7 +220,8 @@ def show_recipe(recipe: dict, is_favorite=False):
 
     if not is_favorite:
         current_fav_status = any(
-            r["id"] == recipe["id"] for r in st.session_state.get("favorites", [])
+            r["id"] == recipe["id"]
+            for r in st.session_state.get("favorites", [])
         )
 
         btn_key = f"fav_{recipe['id']}_{current_fav_status}"
@@ -216,14 +231,14 @@ def show_recipe(recipe: dict, is_favorite=False):
             if not current_fav_status
             else "★ Remove from Favorites",
             key=btn_key,
-        ):            
+        ):
             if current_fav_status:
                 st.session_state.favorites = [
-                    r for r in st.session_state.favorites if r["id"] != recipe["id"]
+                    r for r in st.session_state.favorites
+                    if r["id"] != recipe["id"]
                 ]
-            else:                
+            else:
                 st.session_state.favorites.append(recipe)
-                        
             st.toast("Favorites updated!", icon="✅")
             save_favorites(st.session_state.favorites, localS)
             sleep(0.3)
@@ -233,7 +248,11 @@ def show_recipe(recipe: dict, is_favorite=False):
 def create_custom_recipe(
     name: str, ingredients: str, instructions: str, image_file
 ) -> dict:
-    ingredients_list = [i.strip().lower() for i in ingredients.split("\n") if i.strip()]
+    ingredients_list = [
+        i.strip().lower()
+        for i in ingredients.split("\n")
+        if i.strip()
+    ]
 
     image_data = None
     if image_file:
@@ -247,7 +266,9 @@ def create_custom_recipe(
         "name": name,
         "ingredients": ingredients_list,
         "instructions": instructions,
-        "image_url": f"data:image/png;base64,{image_data}" if image_data else None,
+        "image_url": (
+            f"data:image/png;base64,{image_data}" if image_data else None
+        ),
         "source": "custom",
         "category": "Custom",
         "area": "Personal",

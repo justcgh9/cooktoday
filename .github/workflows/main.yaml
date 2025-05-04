@@ -1,0 +1,99 @@
+name: Cooktoday Pipeline
+
+on:
+  push:
+    branches:
+      - main 
+  pull_request:
+    branches:
+      - main 
+
+jobs:
+  lint:
+    name: Lint Code (Flake8 & Ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install Poetry and Dependencies
+        run: |
+          pip install poetry
+          poetry install --no-root
+
+      - name: Run Flake8
+        run: |
+          poetry run flake8 . 
+
+      - name: Run Ruff
+        run: poetry run ruff check . 
+
+  security:
+    name: Security Check (Bandit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install Poetry and Dependencies
+        run: |
+          pip install poetry
+          poetry install --no-root
+
+      - name: Run Bandit
+        run: |
+          poetry run bandit -r app.py src/
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          pip install poetry
+          poetry install --no-root
+      - name: Run tests with coverage
+        id: pytest
+        run: |
+          poetry run pytest tests --cov=app
+     
+  sonarqube:
+    name: SonarQube Quality Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: DEBUG - Check if secrets exist
+        run: |
+          echo "Project Key: ${{ secrets.SONARCUBE_KEY }}"
+          echo "Organization: ${{ secrets.SONARCUBE_NAME }}"
+          echo "Token length: ${#${{ secrets.SONARCUBE_TOKEN }}}"
+
+
+      - name: SonarQube Scanner
+        uses: sonarsource/sonarqube-scan-action@master
+        with:
+          args: >
+              -Dsonar.projectKey=${{ secrets.SONARCUBE_KEY }} \
+              -Dsonar.organization=${{ secrets.SONARCUBE_NAME }} \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.sources=app.py,src \
+              -Dsonar.python.coverage.reportPaths=coverage.xml
+        env:
+          SONAR_TOKEN: ${{ secrets.SONARCUBE_TOKEN }}
+
+  

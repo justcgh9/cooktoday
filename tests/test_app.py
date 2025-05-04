@@ -54,7 +54,12 @@ def sample_recipes():
             "ingredients": ["salt", "pepper"],
             "source": "api",
         },
-        {"id": "2", "name": "Recipe 2", "ingredients": ["sugar"], "source": "custom"},
+        {
+            "id": "2",
+            "name": "Recipe 2",
+            "ingredients": ["sugar"],
+            "source": "custom"
+        },
     ]
 
 
@@ -89,7 +94,8 @@ def test_render_home_filtering_with_salt(mock_session_state, sample_recipes):
 
         assert len(mock_session_state.filtered_recipes) == 1
         assert all(
-            "salt" in r["ingredients"] for r in mock_session_state.filtered_recipes
+            "salt" in r["ingredients"]
+            for r in mock_session_state.filtered_recipes
         )
 
 
@@ -143,7 +149,9 @@ def test_api_client_fetch_meals():
 def test_api_client_get_meal_details():
     with patch("requests.get") as mock_get:
         mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = {"meals": [{"idMeal": "123"}]}
+        mock_get.return_value.json.return_value = {
+            "meals": [{"idMeal": "123"}]
+        }
 
         client = app.MealDBClient()
         result = client.get_meal_details("123")
@@ -159,7 +167,9 @@ def test_main_with_api_failure(mock_session_state):
         patch("app.st.session_state", mock_session_state),
         patch("app.MealDBClient") as mock_client,
     ):
-        mock_client.return_value.fetch_all_meals.side_effect = Exception("API error")
+        mock_client.return_value.fetch_all_meals.side_effect = Exception(
+            "API error"
+        )
         app.main()
         assert len(mock_session_state["all_meals"]) == 0
 

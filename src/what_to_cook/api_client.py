@@ -7,7 +7,7 @@ class MealDBClient:
 
     def fetch_meals_by_first_letter(self, letter: str) -> list:
         url = f"{self.BASE_URL}search.php?f={letter}"
-        response = requests.get(url)
+        response = requests.get(url, timeout=5)
         return response.json().get("meals", []) if response.ok else []
 
     def fetch_all_meals(self) -> list:
@@ -28,7 +28,7 @@ class MealDBClient:
 
     def fetch_random_meal(self) -> dict:
         url = f"{self.BASE_URL}random.php"
-        response = requests.get(url)
+        response = requests.get(url, timeout=5)
         return response.json().get("meals", [{}])[0] if response.ok else {}
 
     def get_meal_details(self, meal_id: str) -> Dict:

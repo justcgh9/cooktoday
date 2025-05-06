@@ -64,7 +64,7 @@ jobs:
       - name: Run tests with coverage
         id: pytest
         run: |
-          poetry run pytest tests --cov=app --cov-report=xml:coverage.xml
+          poetry run pytest tests --cov=app 
      
   sonarqube:
     name: SonarQube Quality Gate
@@ -77,6 +77,15 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Install dependencies
+        run: |
+          pip install poetry
+          poetry install --no-root
+
+      - name: Run tests with coverage
+        run: |
+          poetry run pytest tests --cov=src --cov=app --cov-report=xml:coverage.xml
+
       - name: SonarQube Scanner
         uses: sonarsource/sonarqube-scan-action@master
         with:
@@ -86,6 +95,7 @@ jobs:
               -Dsonar.sources=app.py,src
               -Dsonar.python.version=3.12
               -Dsonar.tests=tests
+              -Dsonar.python.coverage.reportPaths=coverage.xml
         env:
           SONAR_TOKEN: ${{ secrets.SONARCUBE_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io

@@ -10,36 +10,35 @@ def _safe_json_loads(data: str) -> list:
         return []
 
 
-def load_all(localS) -> list:
-    return _safe_json_loads(localS.getItem("all_recipes"))
+def load_all(local_storage) -> list:
+    return _safe_json_loads(local_storage.getItem("all_recipes"))
 
 
-def save_all(recipes: list, localS) -> None:
-    localS.setItem("all_recipes", json.dumps(recipes))
+def save_all(recipes: list, local_storage) -> None:
+    local_storage.setItem("all_recipes", json.dumps(recipes))
 
 
-def load_favorites(localS) -> list:
-    return _safe_json_loads(localS.getItem("favorites"))
+def load_favorites(local_storage) -> list:
+    return _safe_json_loads(local_storage.getItem("favorites"))
 
 
-def save_favorites(favorites: list, localS) -> None:
-    localS.setItem("favorites", json.dumps(favorites))
+def save_favorites(favorites: list, local_storage) -> None:
+    local_storage.setItem("favorites", json.dumps(favorites))
 
 
-def load_custom_recipes(localS) -> list:
-    return _safe_json_loads(localS.getItem("custom_recipes"))
+def load_custom_recipes(local_storage) -> list:
+    return _safe_json_loads(local_storage.getItem("custom_recipes"))
 
 
-def save_custom_recipes(recipes: list, localS) -> None:
-    localS.setItem("favorites", json.dumps(recipes))
+def save_custom_recipes(recipes: list, local_storage) -> None:
+    local_storage.setItem("custom_recipes", json.dumps(recipes))
 
 
-def process_meal(raw_meal: dict) -> dict:
+def process_meal(raw_meal: dict) -> dict | None:
     """Convert raw API response to our format"""
     if not raw_meal.get("idMeal"):
         return None
 
-    # Get detailed information
     client = MealDBClient()
     details = client.get_meal_details(raw_meal["idMeal"])
 
@@ -62,9 +61,7 @@ def process_meal(raw_meal: dict) -> dict:
         "area": details.get("strArea", "Unknown"),
         "ingredients": ingredients,
         "measures": measures,
-        "instructions": (
-            details.get("strInstructions", "No instructions available")
-        ),
+        "instructions": (details.get("strInstructions", "No instructions available")),
         "image_url": f"{details['strMealThumb']}/preview",
         "source": "api",
     }

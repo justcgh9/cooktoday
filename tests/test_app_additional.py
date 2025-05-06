@@ -48,6 +48,11 @@ def mocked_show_recipe(mocker):
 
 
 @fixture
+def mocked_save_custom_recipes(mocker):
+    return mocker.patch("app.save_custom_recipes")
+
+
+@fixture
 def mock_st():
     state = {
         "favorites": [],
@@ -162,3 +167,17 @@ def test_show_recipe_with_image(mocked_streamlit, mocked_save_favorites):
 
     mocked_streamlit.subheader.assert_called_with("cool")
     mocked_streamlit.image.assert_called_with("test")
+
+
+def test_render_custom_recipes(
+    mocked_streamlit, image, mocked_save_custom_recipes
+):
+    from app import render_custom_recipes
+    mocked_streamlit.form_submit_button.return_value = True
+    mocked_streamlit.file_uploader.return_value = image
+    mocked_streamlit.session_state.custom_recipes.return_value = []
+
+    render_custom_recipes()
+
+    mocked_streamlit.title.assert_called_with("📝 Custom Recipes")
+    mocked_save_custom_recipes.assert_called()

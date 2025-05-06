@@ -61,7 +61,9 @@ def process_meal(raw_meal: dict) -> dict | None:
         "area": details.get("strArea", "Unknown"),
         "ingredients": ingredients,
         "measures": measures,
-        "instructions": (details.get("strInstructions", "No instructions available")),
+        "instructions": (details.get(
+            "strInstructions",
+            "No instructions available")),
         "image_url": f"{details['strMealThumb']}/preview",
         "source": "api",
     }

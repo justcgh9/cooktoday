@@ -231,8 +231,8 @@ def test_render_home_filtering_with_salt(mock_session_state, sample_recipes):
         patch("app.st.error"),
     ):
         mock_multiselect.side_effect = [["salt"], []]
-        mock_session_state["all_meals"] = sample_recipes
-        app.render_home(sample_recipes)
+        mock_session_state.all_meals = sample_recipes
+        app.render_home()
 
         assert len(mock_session_state.filtered_recipes) == 1
         assert all(
@@ -279,8 +279,8 @@ def test_render_home_fuzzing(mock_session_state):
             patch("app.st.error"),
         ):
             mock_multiselect.side_effect = [include, exclude]
-            mock_session_state["all_meals"] = recipes
-            app.render_home(recipes)
+            mock_session_state.all_meals = recipes
+            app.render_home()
 
             filtered = mock_session_state.filtered_recipes
             assert all(

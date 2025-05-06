@@ -3,6 +3,7 @@ import os
 
 from pytest import fixture, mark
 from PIL import Image
+from unittest.mock import patch, MagicMock
 
 
 @fixture(autouse=True)
@@ -46,6 +47,31 @@ def mocked_show_recipe(mocker):
     return mocker.patch("app.show_recipe")
 
 
+@fixture
+def mock_st():
+    state = {
+        "favorites": [],
+        "custom_recipes": [],
+        "all_meals": [],
+        "last_api_fetch": None,
+        "filtered_recipes": [],
+        "current_recipe": None,
+    }
+    mock = MagicMock()
+    mock.__getitem__.side_effect = state.__getitem__
+    mock.__setitem__.side_effect = state.__setitem__
+    mock.__contains__.side_effect = state.__contains__
+
+    def update_handler(new_values):
+        state.update(new_values)
+
+    mock.update.side_effect = update_handler
+
+    for k, v in state.items():
+        setattr(mock, k, v)
+    return mock
+
+
 def test_create_custom_recipe_with_image(image):
     from app import create_custom_recipe
 
@@ -76,13 +102,19 @@ def test_create_custom_recipe_without_image():
 
 
 @mark.usefixtures("mocked_save_favorites")
-def test_render_home(mocked_streamlit):
+def test_render_home(mocked_streamlit, mock_st):
     from app import render_home
 
-    render_home([{"ingredients": ["test"], "name": "cool", "id": "test"}])
+    with (
+        patch("app.st.session_state", mock_st)
+    ):
+        recipe = {"ingredients": ["test"], "name": "cool", "id": "test"}
+        mock_st.all_meals = [recipe]
 
-    mocked_streamlit.title.assert_called_with("What to Cook Today 🍳")
-    mocked_streamlit.subheader.assert_called_with("cool")
+        render_home()
+
+        mocked_streamlit.title.assert_called_with("What to Cook Today 🍳")
+        mocked_streamlit.subheader.assert_called_with("Filters")
 
 
 @mark.usefixtures("mocked_save_favorites")

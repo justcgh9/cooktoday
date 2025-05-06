@@ -129,7 +129,7 @@ def render_home():
     if st.button("🎲 Get Random Recipe") is True:
         if st.session_state.filtered_recipes:
             st.session_state.current_recipe = random.choice(
-                st.session_state.filtered_recipes
+                st.session_state.filtered_recipes  # nosec
             )
         else:
             st.error("No recipes match the filters")
@@ -146,7 +146,7 @@ def render_home():
 
         if st.button("🔀 Try Another Recipe") is True:
             st.session_state.current_recipe = random.choice(
-                st.session_state.filtered_recipes
+                st.session_state.filtered_recipes  # nosec
             )
             st.rerun()
 
